@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Simple Dequeue
  * Description: A plugin to show and selectively disable enqueued CSS and JS files from other plugins.
- * Version: 1.1.0
+ * Version: 1.0.0
  * Author: Lasse Jellum
  * License: GPL2
  */
@@ -13,15 +13,6 @@ if (!defined('ABSPATH')) {
 }
 
 class SimpleDequeue {
-
-    private $contexts = array(
-        'is_front_page' => 'Front Page',
-        'is_home' => 'Blog Page',
-        'is_single' => 'Single Post',
-        'is_page' => 'Single Page',
-        'is_product' => 'Product Page (WooCommerce)',
-        // Add more contexts as needed
-    );
 
     public function __construct() {
         add_action('admin_menu', array($this, 'create_admin_page'));
@@ -48,35 +39,25 @@ class SimpleDequeue {
                             <th>Asset</th>
                             <th>Type</th>
                             <th>Source</th>
-                            <?php foreach ($this->contexts as $context => $label): ?>
-                                <th><?php echo esc_html($label); ?></th>
-                            <?php endforeach; ?>
+                            <th>Disable</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <?php if (!empty($enqueued_assets)): ?>
-                            <?php foreach ($enqueued_assets as $asset => $details): ?>
-                                <tr>
-                                    <td><?php echo esc_html($asset); ?></td>
-                                    <td><?php echo esc_html($details['type']); ?></td>
-                                    <td><?php echo esc_html($details['source']); ?></td>
-                                    <?php foreach ($this->contexts as $context => $label): ?>
-                                        <td>
-                                            <input type="checkbox" name="dequeues[<?php echo esc_attr($asset); ?>][<?php echo esc_attr($context); ?>]" value="1" <?php checked(isset($dequeued_assets[$asset][$context])); ?>>
-                                        </td>
-                                    <?php endforeach; ?>
-                                </tr>
-                            <?php endforeach; ?>
-                        <?php else: ?>
+                        <?php foreach ($enqueued_assets as $asset => $details): ?>
                             <tr>
-                                <td colspan="<?php echo count($this->contexts) + 3; ?>">No enqueued assets found.</td>
+                                <td><?php echo esc_html($asset); ?></td>
+                                <td><?php echo esc_html($details['type']); ?></td>
+                                <td><?php echo esc_html($details['source']); ?></td>
+                                <td>
+                                    <input type="checkbox" name="dequeues[]" value="<?php echo esc_attr($asset); ?>" <?php checked(in_array($asset, $dequeued_assets)); ?>>
+                                </td>
                             </tr>
-                        <?php endif; ?>
+                        <?php endforeach; ?>
                     </tbody>
                 </table>
                 <p><input type="submit" class="button-primary" value="Save Changes"></p>
             </form>
-            <?php if (!empty($dequeued_assets)): ?>
+            <?php if ($dequeued_assets): ?>
                 <h2>Manual Dequeue Code</h2>
                 <p>Copy the following code to your theme's <code>functions.php</code> file and disable this plugin:</p>
                 <textarea id="dequeue-code" rows="10" class="large-text" readonly><?php echo esc_textarea($this->generate_dequeue_code($dequeued_assets)); ?></textarea>
@@ -100,7 +81,6 @@ class SimpleDequeue {
 
         $enqueued_assets = get_option('simple_dequeue_assets', array());
 
-        // Capture scripts
         foreach ($wp_scripts->queue as $handle) {
             if (!isset($wp_scripts->registered[$handle])) continue;
 
@@ -112,7 +92,6 @@ class SimpleDequeue {
             }
         }
 
-        // Capture styles
         foreach ($wp_styles->queue as $handle) {
             if (!isset($wp_styles->registered[$handle])) continue;
 
@@ -124,21 +103,13 @@ class SimpleDequeue {
             }
         }
 
-        // Debugging: Log captured assets
-        error_log('Captured enqueued assets: ' . print_r($enqueued_assets, true));
-
         update_option('simple_dequeue_assets', $enqueued_assets);
 
         $dequeued_assets = get_option('simple_dequeue_dequeued_assets', array());
 
-        // Dequeue selected assets based on context
-        foreach ($dequeued_assets as $asset => $contexts) {
-            foreach ($contexts as $context => $value) {
-                if ($this->is_context($context)) {
-                    wp_dequeue_script($asset);
-                    wp_dequeue_style($asset);
-                }
-            }
+        foreach ($dequeued_assets as $handle) {
+            wp_dequeue_script($handle);
+            wp_dequeue_style($handle);
         }
     }
 
@@ -162,31 +133,21 @@ class SimpleDequeue {
             return $matches[1];
         }
 
-        return 'Unknown';
+        return null;
     }
 
     private function generate_dequeue_code($assets) {
         $code = "<?php\n";
         $code .= "function dequeue_selected_assets() {\n";
-        foreach ($assets as $asset => $contexts) {
-            foreach ($contexts as $context => $value) {
-                $code .= "    if ($context()) {\n";
-                $code .= "        wp_dequeue_script('" . esc_js($asset) . "');\n";
-                $code .= "        wp_dequeue_style('" . esc_js($asset) . "');\n";
-                $code .= "    }\n";
-            }
+        foreach ($assets as $asset) {
+            $code .= "    wp_dequeue_script('" . esc_js($asset) . "');\n";
+            $code .= "    wp_dequeue_style('" . esc_js($asset) . "');\n";
         }
         $code .= "}\n";
         $code .= "add_action('wp_enqueue_scripts', 'dequeue_selected_assets', 100);\n";
         return $code;
     }
-
-    private function is_context($context) {
-        if (function_exists($context)) {
-            return call_user_func($context);
-        }
-        return false;
-    }
 }
 
 new SimpleDequeue();
+?>
