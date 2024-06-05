@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Simple Dequeue
  * Description: A plugin to show and selectively disable enqueued CSS and JS files from other plugins.
- * Version: 1.3.0
+ * Version: 1.3.1
  * Author: Lasse Jellum
  * License: GPL2
  */
@@ -24,11 +24,14 @@ class SimpleDequeue {
     );
 
     private $dequeue_file;
+    private $file_error;
 
     public function __construct() {
         $this->dequeue_file = plugin_dir_path(__FILE__) . 'dequeue-code.php';
+        $this->file_error = false;
 
         add_action('admin_menu', array($this, 'create_admin_page'));
+        add_action('admin_notices', array($this, 'admin_notices'));
         add_action('wp_enqueue_scripts', array($this, 'capture_enqueued_assets'), 100);
         add_action('admin_post_update_dequeues', array($this, 'update_dequeues'));
         add_action('admin_post_toggle_direct_file_mode', array($this, 'toggle_direct_file_mode'));
@@ -157,6 +160,12 @@ class SimpleDequeue {
         <?php
     }
 
+    public function admin_notices() {
+        if ($this->file_error) {
+            echo '<div class="notice notice-error"><p>Simple Dequeue: Failed to create or write to the dequeue code file.</p></div>';
+        }
+    }
+
     public function capture_enqueued_assets() {
         global $wp_scripts, $wp_styles;
 
@@ -257,12 +266,16 @@ class SimpleDequeue {
 
     private function update_dequeue_file($assets) {
         $code = $this->generate_dequeue_code($assets);
-        file_put_contents($this->dequeue_file, $code);
+        if (false === @file_put_contents($this->dequeue_file, $code)) {
+            $this->file_error = true;
+        }
     }
 
     private function run_dequeue_file() {
         if (file_exists($this->dequeue_file)) {
             include $this->dequeue_file;
+        } else {
+            $this->file_error = true;
         }
     }
 
