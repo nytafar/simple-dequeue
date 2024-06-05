@@ -22,6 +22,7 @@ class Simple_Dequeue_Admin {
         $enqueued_assets = get_option('simple_dequeue_assets', array());
         $dequeued_assets = get_option('simple_dequeue_dequeued_assets', array());
         $direct_file_mode = get_option('simple_dequeue_direct_file_mode', false);
+        $dequeue_file_contents = file_exists($this->plugin->get_dequeue_file_path()) ? file_get_contents($this->plugin->get_dequeue_file_path()) : '';
         ?>
         <div class="wrap">
             <h1>Simple Dequeue</h1>
@@ -40,7 +41,7 @@ class Simple_Dequeue_Admin {
                                 <th>Asset</th>
                                 <th>Type</th>
                                 <th>Source</th>
-                                <?php foreach ($this->plugin->contexts as $context => $label): ?>
+                                <?php foreach ($this->plugin->get_contexts() as $context => $label): ?> <!-- Use getter method -->
                                     <th><?php echo esc_html($label); ?></th>
                                 <?php endforeach; ?>
                             </tr>
@@ -52,7 +53,7 @@ class Simple_Dequeue_Admin {
                                         <td><?php echo esc_html($asset); ?></td>
                                         <td><?php echo esc_html($details['type']); ?></td>
                                         <td title="<?php echo esc_attr($details['full_source']); ?>"><?php echo esc_html($details['source']); ?></td>
-                                        <?php foreach ($this->plugin->contexts as $context => $label): ?>
+                                        <?php foreach ($this->plugin->get_contexts() as $context => $label): ?> <!-- Use getter method -->
                                             <td>
                                                 <input type="checkbox" name="dequeues[<?php echo esc_attr($asset); ?>][<?php echo esc_attr($context); ?>]" value="1" <?php checked(isset($dequeued_assets[$asset][$context])); ?>>
                                             </td>
@@ -61,7 +62,7 @@ class Simple_Dequeue_Admin {
                                 <?php endforeach; ?>
                             <?php else: ?>
                                 <tr>
-                                    <td colspan="<?php echo count($this->plugin->contexts) + 3; ?>">No enqueued assets found.</td>
+                                    <td colspan="<?php echo count($this->plugin->get_contexts()) + 3; ?>">No enqueued assets found.</td>
                                 </tr>
                             <?php endif; ?>
                         </tbody>
@@ -101,7 +102,7 @@ class Simple_Dequeue_Admin {
                 </form>
                 <?php if ($direct_file_mode): ?>
                     <h3>Current Dequeue Code</h3>
-                    <textarea id="direct-dequeue-code" rows="10" class="large-text" readonly><?php echo esc_textarea(file_get_contents($this->plugin->dequeue_file)); ?></textarea>
+                    <textarea id="direct-dequeue-code" rows="10" class="large-text" readonly><?php echo esc_textarea($dequeue_file_contents); ?></textarea>
                     <button class="button" onclick="copyDirectFileToClipboard()">Copy to Clipboard</button>
                     <script>
                         function copyDirectFileToClipboard() {
@@ -134,7 +135,7 @@ class Simple_Dequeue_Admin {
     }
 
     public function admin_notices() {
-        if ($this->plugin->file_error) {
+        if ($this->plugin->has_file_error()) {
             echo '<div class="notice notice-error"><p>Simple Dequeue: Failed to create or write to the dequeue code file.</p></div>';
         }
     }

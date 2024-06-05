@@ -5,19 +5,19 @@ if (!defined('ABSPATH')) {
 
 class Simple_Dequeue {
 
-    private $contexts = array(
-        'is_front_page' => 'Front Page',
-        'is_home' => 'Blog Page',
-        'is_single' => 'Single Post',
-        'is_page' => 'Single Page',
-        'is_product' => 'Product Page (WooCommerce)',
-        // Add more contexts as needed
-    );
-
+    private $contexts;
     private $dequeue_file;
     private $file_error;
 
     public function __construct() {
+        $this->contexts = array(
+            'is_front_page' => 'Front Page',
+            'is_home' => 'Blog Page',
+            'is_single' => 'Single Post',
+            'is_page' => 'Single Page',
+            'is_product' => 'Product Page (WooCommerce)',
+            // Add more contexts as needed
+        );
         $this->dequeue_file = SIMPLE_DEQUEUE_PATH . 'dequeue-code.php';
         $this->file_error = false;
 
@@ -34,6 +34,18 @@ class Simple_Dequeue {
             require_once SIMPLE_DEQUEUE_PATH . 'includes/class-simple-dequeue-admin.php';
             new Simple_Dequeue_Admin($this);
         }
+    }
+
+    public function get_contexts() {
+        return $this->contexts;
+    }
+
+    public function has_file_error() {
+        return $this->file_error;
+    }
+
+    public function get_dequeue_file_path() {
+        return $this->dequeue_file;
     }
 
     public function capture_enqueued_assets() {
@@ -114,7 +126,7 @@ class Simple_Dequeue {
         return 'Unknown';
     }
 
-    private function generate_dequeue_code($assets) {
+    public function generate_dequeue_code($assets) {
         $code = "<?php\n";
         $code .= "function dequeue_selected_assets() {\n";
         foreach ($assets as $asset => $contexts) {
@@ -134,6 +146,9 @@ class Simple_Dequeue {
         $code = $this->generate_dequeue_code($assets);
         if (false === @file_put_contents($this->dequeue_file, $code)) {
             $this->file_error = true;
+            error_log('Simple Dequeue: Failed to write to ' . $this->dequeue_file);
+        } else {
+            error_log('Simple Dequeue: Successfully wrote to ' . $this->dequeue_file);
         }
     }
 
