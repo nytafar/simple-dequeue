@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Simple Dequeue
  * Description: A plugin to show and selectively disable enqueued CSS and JS files from other plugins.
- * Version: 1.2.0
+ * Version: 1.3.0
  * Author: Lasse Jellum
  * License: GPL2
  */
@@ -23,10 +23,19 @@ class SimpleDequeue {
         // Add more contexts as needed
     );
 
+    private $dequeue_file;
+
     public function __construct() {
+        $this->dequeue_file = plugin_dir_path(__FILE__) . 'dequeue-code.php';
+
         add_action('admin_menu', array($this, 'create_admin_page'));
         add_action('wp_enqueue_scripts', array($this, 'capture_enqueued_assets'), 100);
         add_action('admin_post_update_dequeues', array($this, 'update_dequeues'));
+        add_action('admin_post_toggle_direct_file_mode', array($this, 'toggle_direct_file_mode'));
+
+        if (get_option('simple_dequeue_direct_file_mode', false)) {
+            add_action('wp_enqueue_scripts', array($this, 'run_dequeue_file'), 99);
+        }
     }
 
     public function create_admin_page() {
@@ -36,12 +45,14 @@ class SimpleDequeue {
     public function admin_page() {
         $enqueued_assets = get_option('simple_dequeue_assets', array());
         $dequeued_assets = get_option('simple_dequeue_dequeued_assets', array());
+        $direct_file_mode = get_option('simple_dequeue_direct_file_mode', false);
         ?>
         <div class="wrap">
             <h1>Simple Dequeue</h1>
             <h2 class="nav-tab-wrapper">
                 <a href="#manage" class="nav-tab nav-tab-active">Manage Dequeues</a>
                 <a href="#manual" class="nav-tab">Manual Dequeue Code</a>
+                <a href="#direct" class="nav-tab">Direct File Mode</a>
             </h2>
             <div id="manage" class="tab-content">
                 <form method="post" action="<?php echo admin_url('admin-post.php'); ?>">
@@ -91,6 +102,34 @@ class SimpleDequeue {
                     <script>
                         function copyToClipboard() {
                             var copyText = document.getElementById("dequeue-code");
+                            copyText.select();
+                            copyText.setSelectionRange(0, 99999); /* For mobile devices */
+                            document.execCommand("copy");
+                            alert("Code copied to clipboard");
+                        }
+                    </script>
+                <?php endif; ?>
+            </div>
+            <div id="direct" class="tab-content" style="display:none;">
+                <h2>Direct File Mode</h2>
+                <form method="post" action="<?php echo admin_url('admin-post.php'); ?>">
+                    <input type="hidden" name="action" value="toggle_direct_file_mode">
+                    <?php wp_nonce_field('toggle_direct_file_mode_nonce', 'toggle_direct_file_mode_nonce'); ?>
+                    <p>
+                        <label>
+                            <input type="checkbox" name="direct_file_mode" value="1" <?php checked($direct_file_mode); ?>>
+                            Enable Direct File Mode
+                        </label>
+                    </p>
+                    <p><input type="submit" class="button-primary" value="Save Changes"></p>
+                </form>
+                <?php if ($direct_file_mode): ?>
+                    <h3>Current Dequeue Code</h3>
+                    <textarea id="direct-dequeue-code" rows="10" class="large-text" readonly><?php echo esc_textarea(file_get_contents($this->dequeue_file)); ?></textarea>
+                    <button class="button" onclick="copyDirectFileToClipboard()">Copy to Clipboard</button>
+                    <script>
+                        function copyDirectFileToClipboard() {
+                            var copyText = document.getElementById("direct-dequeue-code");
                             copyText.select();
                             copyText.setSelectionRange(0, 99999); /* For mobile devices */
                             document.execCommand("copy");
@@ -151,10 +190,13 @@ class SimpleDequeue {
 
         $dequeued_assets = get_option('simple_dequeue_dequeued_assets', array());
 
+        // Update the direct file with current dequeue code
+        $this->update_dequeue_file($dequeued_assets);
+
         // Dequeue selected assets based on context
         foreach ($dequeued_assets as $asset => $contexts) {
             foreach ($contexts as $context => $value) {
-                if ($this->is_context($context)) {
+                if (!$this->is_direct_file_mode() && $this->is_context($context)) {
                     wp_dequeue_script($asset);
                     wp_dequeue_style($asset);
                 }
@@ -170,7 +212,19 @@ class SimpleDequeue {
         $dequeues = isset($_POST['dequeues']) ? $_POST['dequeues'] : array();
         update_option('simple_dequeue_dequeued_assets', $dequeues);
 
-        wp_redirect(admin_url('admin.php?page=simple-dequeue&updated=true'));
+        wp_redirect(admin_url('options-general.php?page=simple-dequeue&updated=true'));
+        exit;
+    }
+
+    public function toggle_direct_file_mode() {
+        if (!current_user_can('manage_options') || !isset($_POST['toggle_direct_file_mode_nonce']) || !wp_verify_nonce($_POST['toggle_direct_file_mode_nonce'], 'toggle_direct_file_mode_nonce')) {
+            wp_die('Unauthorized request.');
+        }
+
+        $direct_file_mode = isset($_POST['direct_file_mode']) ? 1 : 0;
+        update_option('simple_dequeue_direct_file_mode', $direct_file_mode);
+
+        wp_redirect(admin_url('options-general.php?page=simple-dequeue&updated=true'));
         exit;
     }
 
@@ -201,11 +255,26 @@ class SimpleDequeue {
         return $code;
     }
 
+    private function update_dequeue_file($assets) {
+        $code = $this->generate_dequeue_code($assets);
+        file_put_contents($this->dequeue_file, $code);
+    }
+
+    private function run_dequeue_file() {
+        if (file_exists($this->dequeue_file)) {
+            include $this->dequeue_file;
+        }
+    }
+
     private function is_context($context) {
         if (function_exists($context)) {
             return call_user_func($context);
         }
         return false;
+    }
+
+    private function is_direct_file_mode() {
+        return get_option('simple_dequeue_direct_file_mode', false);
     }
 }
 
