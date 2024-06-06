@@ -1,0 +1,164 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Simple Dequeue 1.4.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-06-05 12:00+0000\n"
+"PO-Revision-Date: 2024-06-05 12:00+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: includes/class-simple-dequeue.php:17
+msgid "Front Page"
+msgstr ""
+
+#: includes/class-simple-dequeue.php:18
+msgid "Blog Page"
+msgstr ""
+
+#: includes/class-simple-dequeue.php:19
+msgid "Single Post"
+msgstr ""
+
+#: includes/class-simple-dequeue.php:20
+msgid "Single Page"
+msgstr ""
+
+#: includes/class-simple-dequeue.php:21
+msgid "Product Page (WooCommerce)"
+msgstr ""
+
+#: includes/class-simple-dequeue.php:66
+msgid "Unauthorized request."
+msgstr ""
+
+#: includes/class-simple-dequeue.php:90
+msgid "Generated dequeue code:"
+msgstr ""
+
+#: includes/class-simple-dequeue.php:93
+msgid "Failed to write to"
+msgstr ""
+
+#: includes/class-simple-dequeue.php:95
+msgid "Successfully wrote to"
+msgstr ""
+
+#: includes/class-simple-dequeue.php:99
+msgid "Dequeue file does not exist at"
+msgstr ""
+
+#: includes/class-simple-dequeue.php:112
+msgid "Unknown"
+msgstr ""
+
+#: includes/class-simple-dequeue-admin.php:20
+msgid "Simple Dequeue"
+msgstr ""
+
+#: includes/class-simple-dequeue-admin.php:23
+#: includes/class-simple-dequeue-admin.php:35
+#: includes/class-simple-dequeue-admin.php:110
+#: includes/class-simple-dequeue-admin.php:119
+msgid "Manage Dequeues"
+msgstr ""
+
+#: includes/class-simple-dequeue-admin.php:24
+msgid "Settings"
+msgstr ""
+
+#: includes/class-simple-dequeue-admin.php:25
+msgid "Manual Dequeue Code"
+msgstr ""
+
+#: includes/class-simple-dequeue-admin.php:26
+msgid "Direct File Mode"
+msgstr ""
+
+#: includes/class-simple-dequeue-admin.php:47
+msgid "Asset"
+msgstr ""
+
+#: includes/class-simple-dequeue-admin.php:48
+msgid "Type"
+msgstr ""
+
+#: includes/class-simple-dequeue-admin.php:49
+msgid "Source"
+msgstr ""
+
+#: includes/class-simple-dequeue-admin.php:64
+msgid "No enqueued assets found."
+msgstr ""
+
+#: includes/class-simple-dequeue-admin.php:66
+#: includes/class-simple-dequeue-admin.php:98
+#: includes/class-simple-dequeue-admin.php:149
+msgid "Save Changes"
+msgstr ""
+
+#: includes/class-simple-dequeue-admin.php:74
+msgid "Choose Dequeue Mode"
+msgstr ""
+
+#: includes/class-simple-dequeue-admin.php:76
+msgid "Direct from settings:"
+msgstr ""
+
+#: includes/class-simple-dequeue-admin.php:77
+msgid ""
+"The plugin will dequeue assets on the frontend according to your settings, "
+"ideal for building and testing."
+msgstr ""
+
+#: includes/class-simple-dequeue-admin.php:81
+msgid "Theme Functions File:"
+msgstr ""
+
+#: includes/class-simple-dequeue-admin.php:82
+msgid ""
+"The plugin generates code you can paste into your theme's functions.php file. "
+"The plugin will not dequeue assets by itself, only generate the code. You can "
+"safely disable the plugin when the code is implemented."
+msgstr ""
+
+#: includes/class-simple-dequeue-admin.php:87
+msgid "Direct File Mode:"
+msgstr ""
+
+#: includes/class-simple-dequeue-admin.php:88
+msgid ""
+"The plugin will generate a file that is loaded on the frontend but not access "
+"its settings in the database to change the file when you make changes. This "
+"is a higher performance option bypassing the need to keep a copy (requires "
+"system write permissions)."
+msgstr ""
+
+#: includes/class-simple-dequeue-admin.php:125
+msgid "Copy the following code to your theme's functions.php file and disable this plugin:"
+msgstr ""
+
+#: includes/class-simple-dequeue-admin.php:127
+#: includes/class-simple-dequeue-admin.php:157
+msgid "Copy to Clipboard"
+msgstr ""
+
+#: includes/class-simple-dequeue-admin.php:134
+#: includes/class-simple-dequeue-admin.php:164
+msgid "Code copied to clipboard"
+msgstr ""
+
+#: includes/class-simple-dequeue-admin.php:153
+msgid "Current Dequeue Code"
+msgstr ""
+
+#: includes/class-simple-dequeue-admin.php:162
+msgid "Enable Direct File Mode"
+msgstr ""
+
+#: includes/class-simple-dequeue-admin.php:170
+msgid "Failed to create or write to the dequeue code file."
+msgstr ""

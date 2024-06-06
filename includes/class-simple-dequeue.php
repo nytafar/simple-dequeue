@@ -12,11 +12,11 @@ class Simple_Dequeue {
 
     public function __construct() {
         $this->contexts = array(
-            'is_front_page' => 'Front Page',
-            'is_home' => 'Blog Page',
-            'is_single' => 'Single Post',
-            'is_page' => 'Single Page',
-            'is_product' => 'Product Page (WooCommerce)',
+            'is_front_page' => __('Front Page', 'simple-dequeue'),
+            'is_home' => __('Blog Page', 'simple-dequeue'),
+            'is_single' => __('Single Post', 'simple-dequeue'),
+            'is_page' => __('Single Page', 'simple-dequeue'),
+            'is_product' => __('Product Page (WooCommerce)', 'simple-dequeue'),
             // Add more contexts as needed
         );
         $this->dequeue_file = SIMPLE_DEQUEUE_PATH . 'dequeue-code.php';
@@ -102,7 +102,7 @@ class Simple_Dequeue {
 
     public function update_dequeues() {
         if (!current_user_can('manage_options') || !isset($_POST['update_dequeues_nonce']) || !wp_verify_nonce($_POST['update_dequeues_nonce'], 'update_dequeues_nonce')) {
-            wp_die('Unauthorized request.');
+            wp_die(__('Unauthorized request.', 'simple-dequeue'));
         }
 
         $dequeues = isset($_POST['dequeues']) ? $_POST['dequeues'] : array();
@@ -116,7 +116,7 @@ class Simple_Dequeue {
 
     public function toggle_direct_file_mode() {
         if (!current_user_can('manage_options') || !isset($_POST['toggle_direct_file_mode_nonce']) || !wp_verify_nonce($_POST['toggle_direct_file_mode_nonce'], 'toggle_direct_file_mode_nonce')) {
-            wp_die('Unauthorized request.');
+            wp_die(__('Unauthorized request.', 'simple-dequeue'));
         }
 
         $direct_file_mode = isset($_POST['direct_file_mode']) ? 1 : 0;
@@ -128,7 +128,7 @@ class Simple_Dequeue {
 
     public function update_dequeue_mode() {
         if (!current_user_can('manage_options') || !isset($_POST['update_dequeue_mode_nonce']) || !wp_verify_nonce($_POST['update_dequeue_mode_nonce'], 'update_dequeue_mode_nonce')) {
-            wp_die('Unauthorized request.');
+            wp_die(__('Unauthorized request.', 'simple-dequeue'));
         }
 
         $mode = isset($_POST['dequeue_mode']) ? sanitize_text_field($_POST['dequeue_mode']) : 'settings';
@@ -146,7 +146,7 @@ class Simple_Dequeue {
             return $matches[1];
         }
 
-        return 'Unknown';
+        return __('Unknown', 'simple-dequeue');
     }
 
     public function generate_dequeue_code($assets) {
@@ -168,15 +168,15 @@ class Simple_Dequeue {
     private function update_dequeue_file($assets) {
         $code = $this->generate_dequeue_code($assets);
 
-        error_log('Simple Dequeue: Generated dequeue code: ' . $code);
+        error_log('Simple Dequeue: ' . __('Generated dequeue code:', 'simple-dequeue') . ' ' . $code);
 
         $file_written = @file_put_contents($this->dequeue_file, $code);
         
         if ($file_written === false) {
             $this->file_error = true;
-            error_log('Simple Dequeue: Failed to write to ' . $this->dequeue_file);
+            error_log('Simple Dequeue: ' . __('Failed to write to', 'simple-dequeue') . ' ' . $this->dequeue_file);
         } else {
-            error_log('Simple Dequeue: Successfully wrote to ' . $this->dequeue_file);
+            error_log('Simple Dequeue: ' . __('Successfully wrote to', 'simple-dequeue') . ' ' . $this->dequeue_file);
         }
     }
 
@@ -185,7 +185,7 @@ class Simple_Dequeue {
             include $this->dequeue_file;
         } else {
             $this->file_error = true;
-            error_log('Simple Dequeue: Dequeue file does not exist at ' . $this->dequeue_file);
+            error_log('Simple Dequeue: ' . __('Dequeue file does not exist at', 'simple-dequeue') . ' ' . $this->dequeue_file);
         }
     }
 

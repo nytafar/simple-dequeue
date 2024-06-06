@@ -1,0 +1,180 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Simple Dequeue 1.4.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-06-05 12:00+0000\n"
+"PO-Revision-Date: 2024-06-06 10:34+0000\n"
+"Last-Translator: \n"
+"Language-Team: Norwegian (Bokmål)\n"
+"Language: nb_NO\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Loco https://localise.biz/\n"
+"X-Loco-Version: 2.6.9; wp-6.4.4"
+
+#: includes/class-simple-dequeue.php:17
+msgid "Front Page"
+msgstr "Forside"
+
+#: includes/class-simple-dequeue.php:18
+msgid "Blog Page"
+msgstr "Bloggside"
+
+#: includes/class-simple-dequeue.php:19
+msgid "Single Post"
+msgstr "Enkelt innlegg"
+
+#: includes/class-simple-dequeue.php:20
+msgid "Single Page"
+msgstr "Enkelt side"
+
+#: includes/class-simple-dequeue.php:21
+msgid "Product Page (WooCommerce)"
+msgstr "Produktside (WooCommerce)"
+
+#: includes/class-simple-dequeue.php:66
+msgid "Unauthorized request."
+msgstr "Uautorisert forespørsel."
+
+#: includes/class-simple-dequeue.php:90
+msgid "Generated dequeue code:"
+msgstr "Generert kode:"
+
+#: includes/class-simple-dequeue.php:93
+msgid "Failed to write to"
+msgstr "Kunne ikke skrive til"
+
+#: includes/class-simple-dequeue.php:95
+msgid "Successfully wrote to"
+msgstr "Vellykket skrevet til"
+
+#: includes/class-simple-dequeue.php:99
+msgid "Dequeue file does not exist at"
+msgstr "Filen eksisterer ikke på"
+
+#: includes/class-simple-dequeue.php:112
+msgid "Unknown"
+msgstr "Ukjent"
+
+#: includes/class-simple-dequeue-admin.php:20
+msgid "Simple Dequeue"
+msgstr "Simple Dequeue"
+
+#: includes/class-simple-dequeue-admin.php:23
+#: includes/class-simple-dequeue-admin.php:35
+#: includes/class-simple-dequeue-admin.php:110
+#: includes/class-simple-dequeue-admin.php:119
+msgid "Manage Dequeues"
+msgstr "Velg ressurser"
+
+#: includes/class-simple-dequeue-admin.php:24
+msgid "Settings"
+msgstr "Innstillinger"
+
+#: includes/class-simple-dequeue-admin.php:25
+msgid "Manual Dequeue Code"
+msgstr "Manuell kode"
+
+#: includes/class-simple-dequeue-admin.php:26
+msgid "Direct File Mode"
+msgstr "Direkte filmodus"
+
+#: includes/class-simple-dequeue-admin.php:47
+msgid "Asset"
+msgstr "Ressurs"
+
+#: includes/class-simple-dequeue-admin.php:48
+msgid "Type"
+msgstr "Type"
+
+#: includes/class-simple-dequeue-admin.php:49
+msgid "Source"
+msgstr "Kilde"
+
+#: includes/class-simple-dequeue-admin.php:64
+msgid "No enqueued assets found."
+msgstr "Ingen påkrevde ressurser funnet."
+
+#: includes/class-simple-dequeue-admin.php:66
+#: includes/class-simple-dequeue-admin.php:98
+#: includes/class-simple-dequeue-admin.php:149
+msgid "Save Changes"
+msgstr "Lagre endringer"
+
+#: includes/class-simple-dequeue-admin.php:74
+msgid "Choose Dequeue Mode"
+msgstr "Velg Modus"
+
+#: includes/class-simple-dequeue-admin.php:76
+msgid "Direct from settings:"
+msgstr "Direkte fra innstillinger:"
+
+#: includes/class-simple-dequeue-admin.php:77
+msgid ""
+"The plugin will dequeue assets on the frontend according to your settings, "
+"ideal for building and testing."
+msgstr ""
+"Pluginen vil avkø ressurser på frontend i henhold til innstillingene dine, "
+"ideell for bygging og testing."
+
+#: includes/class-simple-dequeue-admin.php:81
+msgid "Theme Functions File:"
+msgstr "Temaets funksjons-fil:"
+
+#: includes/class-simple-dequeue-admin.php:82
+msgid ""
+"The plugin generates code you can paste into your theme's functions.php file."
+" The plugin will not dequeue assets by itself, only generate the code. You "
+"can safely disable the plugin when the code is implemented."
+msgstr ""
+"Pluginen genererer kode som du kan lime inn i temaets functions.php-fil. "
+"Pluginen vil ikke avkø ressurser selv, bare generere koden. Du kan trygt "
+"deaktivere pluginen når koden er implementert."
+
+#: includes/class-simple-dequeue-admin.php:87
+msgid "Direct File Mode:"
+msgstr "Direkte filmodus:"
+
+#: includes/class-simple-dequeue-admin.php:88
+msgid ""
+"The plugin will generate a file that is loaded on the frontend but not "
+"access its settings in the database to change the file when you make changes."
+" This is a higher performance option bypassing the need to keep a copy "
+"(requires system write permissions)."
+msgstr ""
+"Pluginen vil generere en fil som lastes på frontend, men ikke få tilgang til "
+"innstillingene i databasen for å endre filen når du gjør endringer. Dette er "
+"et høyere ytelsesalternativ som omgår behovet for å beholde en kopi (krever "
+"systemskrivertilgang)."
+
+#: includes/class-simple-dequeue-admin.php:125
+msgid ""
+"Copy the following code to your theme's functions.php file and disable this "
+"plugin:"
+msgstr ""
+"Kopier følgende kode til temaets functions.php-fil og deaktiver denne "
+"pluginen:"
+
+#: includes/class-simple-dequeue-admin.php:127
+#: includes/class-simple-dequeue-admin.php:157
+msgid "Copy to Clipboard"
+msgstr "Kopier til utklippstavle"
+
+#: includes/class-simple-dequeue-admin.php:134
+#: includes/class-simple-dequeue-admin.php:164
+msgid "Code copied to clipboard"
+msgstr "Kode kopiert til utklippstavle"
+
+#: includes/class-simple-dequeue-admin.php:153
+msgid "Current Dequeue Code"
+msgstr "Gjeldende kode"
+
+#: includes/class-simple-dequeue-admin.php:162
+msgid "Enable Direct File Mode"
+msgstr "Aktiver direkte filmodus"
+
+#: includes/class-simple-dequeue-admin.php:170
+msgid "Failed to create or write to the dequeue code file."
+msgstr "Kunne ikke opprette eller skrive til fil."
