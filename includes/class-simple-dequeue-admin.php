@@ -22,16 +22,44 @@ class Simple_Dequeue_Admin {
         $enqueued_assets = get_option('simple_dequeue_assets', array());
         $dequeued_assets = get_option('simple_dequeue_dequeued_assets', array());
         $direct_file_mode = get_option('simple_dequeue_direct_file_mode', false);
+        $dequeue_mode = get_option('simple_dequeue_mode', 'settings');
         $dequeue_file_contents = file_exists($this->plugin->get_dequeue_file_path()) ? file_get_contents($this->plugin->get_dequeue_file_path()) : '';
         ?>
         <div class="wrap">
             <h1>Simple Dequeue</h1>
             <h2 class="nav-tab-wrapper">
-                <a href="#manage" class="nav-tab nav-tab-active">Manage Dequeues</a>
+                <a href="#settings" class="nav-tab nav-tab-active">Settings</a>
+                <a href="#manage" class="nav-tab">Manage Dequeues</a>
                 <a href="#manual" class="nav-tab">Manual Dequeue Code</a>
                 <a href="#direct" class="nav-tab">Direct File Mode</a>
             </h2>
-            <div id="manage" class="tab-content">
+            <div id="settings" class="tab-content">
+                <form method="post" action="<?php echo admin_url('admin-post.php'); ?>">
+                    <input type="hidden" name="action" value="update_dequeue_mode">
+                    <?php wp_nonce_field('update_dequeue_mode_nonce', 'update_dequeue_mode_nonce'); ?>
+                    <h2>Choose Dequeue Mode</h2>
+                    <p>
+                        <label>
+                            <input type="radio" name="dequeue_mode" value="settings" <?php checked($dequeue_mode, 'settings'); ?>>
+                            Direct from settings
+                        </label>
+                    </p>
+                    <p>
+                        <label>
+                            <input type="radio" name="dequeue_mode" value="functions_file" <?php checked($dequeue_mode, 'functions_file'); ?>>
+                            Theme Functions File
+                        </label>
+                    </p>
+                    <p>
+                        <label>
+                            <input type="radio" name="dequeue_mode" value="direct_file" <?php checked($dequeue_mode, 'direct_file'); ?>>
+                            Direct File Mode
+                        </label>
+                    </p>
+                    <p><input type="submit" class="button-primary" value="Save Changes"></p>
+                </form>
+            </div>
+            <div id="manage" class="tab-content" style="display:none;">
                 <form method="post" action="<?php echo admin_url('admin-post.php'); ?>">
                     <input type="hidden" name="action" value="update_dequeues">
                     <?php wp_nonce_field('update_dequeues_nonce', 'update_dequeues_nonce'); ?>

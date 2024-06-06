@@ -8,6 +8,7 @@ class Simple_Dequeue {
     private $contexts;
     private $dequeue_file;
     private $file_error;
+    private $dequeue_mode;
 
     public function __construct() {
         $this->contexts = array(
@@ -20,12 +21,13 @@ class Simple_Dequeue {
         );
         $this->dequeue_file = SIMPLE_DEQUEUE_PATH . 'dequeue-code.php';
         $this->file_error = false;
+        $this->dequeue_mode = get_option('simple_dequeue_mode', 'settings');
 
         add_action('wp_enqueue_scripts', array($this, 'capture_enqueued_assets'), 100);
         add_action('admin_post_update_dequeues', array($this, 'update_dequeues'));
         add_action('admin_post_toggle_direct_file_mode', array($this, 'toggle_direct_file_mode'));
 
-        if (get_option('simple_dequeue_direct_file_mode', false)) {
+        if ($this->dequeue_mode === 'direct_file' && get_option('simple_dequeue_direct_file_mode', false)) {
             add_action('wp_enqueue_scripts', array($this, 'run_dequeue_file'), 99);
         }
 
@@ -49,6 +51,10 @@ class Simple_Dequeue {
     }
 
     public function capture_enqueued_assets() {
+        if ($this->dequeue_mode === 'functions_file' || $this->dequeue_mode === 'direct_file') {
+            return;
+        }
+
         global $wp_scripts, $wp_styles;
 
         $enqueued_assets = get_option('simple_dequeue_assets', array());
@@ -79,16 +85,18 @@ class Simple_Dequeue {
 
         $dequeued_assets = get_option('simple_dequeue_dequeued_assets', array());
 
-        $this->update_dequeue_file($dequeued_assets);
-
-        foreach ($dequeued_assets as $asset => $contexts) {
-            foreach ($contexts as $context => $value) {
-                if (!$this->is_direct_file_mode() && $this->is_context($context)) {
-                    wp_dequeue_script($asset);
-                    wp_dequeue_style($asset);
+        if ($this->dequeue_mode === 'settings') {
+            foreach ($dequeued_assets as $asset => $contexts) {
+                foreach ($contexts as $context => $value) {
+                    if ($this->is_context($context)) {
+                        wp_dequeue_script($asset);
+                        wp_dequeue_style($asset);
+                    }
                 }
             }
         }
+
+        $this->update_dequeue_file($dequeued_assets);
     }
 
     public function update_dequeues() {
@@ -99,7 +107,7 @@ class Simple_Dequeue {
         $dequeues = isset($_POST['dequeues']) ? $_POST['dequeues'] : array();
         update_option('simple_dequeue_dequeued_assets', $dequeues);
 
-        $this->update_dequeue_file($dequeues); // Ensure this is called
+        $this->update_dequeue_file($dequeues);
 
         wp_redirect(admin_url('options-general.php?page=simple-dequeue&updated=true'));
         exit;
@@ -112,6 +120,18 @@ class Simple_Dequeue {
 
         $direct_file_mode = isset($_POST['direct_file_mode']) ? 1 : 0;
         update_option('simple_dequeue_direct_file_mode', $direct_file_mode);
+
+        wp_redirect(admin_url('options-general.php?page=simple-dequeue&updated=true'));
+        exit;
+    }
+
+    public function update_dequeue_mode() {
+        if (!current_user_can('manage_options') || !isset($_POST['update_dequeue_mode_nonce']) || !wp_verify_nonce($_POST['update_dequeue_mode_nonce'], 'update_dequeue_mode_nonce')) {
+            wp_die('Unauthorized request.');
+        }
+
+        $mode = isset($_POST['dequeue_mode']) ? sanitize_text_field($_POST['dequeue_mode']) : 'settings';
+        update_option('simple_dequeue_mode', $mode);
 
         wp_redirect(admin_url('options-general.php?page=simple-dequeue&updated=true'));
         exit;
@@ -147,15 +167,15 @@ class Simple_Dequeue {
     private function update_dequeue_file($assets) {
         $code = $this->generate_dequeue_code($assets);
 
-        error_log('Simple Dequeue: Generated dequeue code: ' . $code); // Log the generated code
+        error_log('Simple Dequeue: Generated dequeue code: ' . $code);
 
         $file_written = @file_put_contents($this->dequeue_file, $code);
         
         if ($file_written === false) {
             $this->file_error = true;
-            error_log('Simple Dequeue: Failed to write to ' . $this->dequeue_file); // Log the failure
+            error_log('Simple Dequeue: Failed to write to ' . $this->dequeue_file);
         } else {
-            error_log('Simple Dequeue: Successfully wrote to ' . $this->dequeue_file); // Log the success
+            error_log('Simple Dequeue: Successfully wrote to ' . $this->dequeue_file);
         }
     }
 
@@ -164,7 +184,7 @@ class Simple_Dequeue {
             include $this->dequeue_file;
         } else {
             $this->file_error = true;
-            error_log('Simple Dequeue: Dequeue file does not exist at ' . $this->dequeue_file); // Log if file does not exist
+            error_log('Simple Dequeue: Dequeue file does not exist at ' . $this->dequeue_file);
         }
     }
 
