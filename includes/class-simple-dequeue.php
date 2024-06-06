@@ -26,6 +26,7 @@ class Simple_Dequeue {
         add_action('wp_enqueue_scripts', array($this, 'capture_enqueued_assets'), 100);
         add_action('admin_post_update_dequeues', array($this, 'update_dequeues'));
         add_action('admin_post_toggle_direct_file_mode', array($this, 'toggle_direct_file_mode'));
+        add_action('admin_post_update_dequeue_mode', array($this, 'update_dequeue_mode'));
 
         if ($this->dequeue_mode === 'direct_file' && get_option('simple_dequeue_direct_file_mode', false)) {
             add_action('wp_enqueue_scripts', array($this, 'run_dequeue_file'), 99);
@@ -109,7 +110,7 @@ class Simple_Dequeue {
 
         $this->update_dequeue_file($dequeues);
 
-        wp_redirect(admin_url('options-general.php?page=simple-dequeue&updated=true'));
+        wp_redirect(add_query_arg('tab', 'manage', admin_url('options-general.php?page=simple-dequeue&updated=true')));
         exit;
     }
 
@@ -121,7 +122,7 @@ class Simple_Dequeue {
         $direct_file_mode = isset($_POST['direct_file_mode']) ? 1 : 0;
         update_option('simple_dequeue_direct_file_mode', $direct_file_mode);
 
-        wp_redirect(admin_url('options-general.php?page=simple-dequeue&updated=true'));
+        wp_redirect(add_query_arg('tab', 'direct', admin_url('options-general.php?page=simple-dequeue&updated=true')));
         exit;
     }
 
@@ -133,7 +134,7 @@ class Simple_Dequeue {
         $mode = isset($_POST['dequeue_mode']) ? sanitize_text_field($_POST['dequeue_mode']) : 'settings';
         update_option('simple_dequeue_mode', $mode);
 
-        wp_redirect(admin_url('options-general.php?page=simple-dequeue&updated=true'));
+        wp_redirect(add_query_arg('tab', 'settings', admin_url('options-general.php?page=simple-dequeue&updated=true')));
         exit;
     }
 
@@ -179,7 +180,7 @@ class Simple_Dequeue {
         }
     }
 
-    private function run_dequeue_file() {
+    public function run_dequeue_file() { // Changed to public
         if (file_exists($this->dequeue_file)) {
             include $this->dequeue_file;
         } else {

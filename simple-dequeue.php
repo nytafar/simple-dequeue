@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Simple Dequeue
  * Description: A plugin to show and selectively disable enqueued CSS and JS files from other plugins.
- * Version: 1.4.0
+ * Version: 1.4.5 
  * Author: Lasse Jellum
  * License: GPL2
  */
