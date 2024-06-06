@@ -62,11 +62,6 @@ After installing and activating the plugin, go to **Settings > Simple Dequeue** 
 ### Can I disable the plugin after generating the code for my theme?
 Yes, if you choose the "Theme Functions File" mode and paste the generated code into your theme's `functions.php` file, you can safely disable the plugin.
 
-## Changelog
-
-### 1.4.0
-* Initial release with support for managing dequeues, multiple modes, and Norwegian Bokmål translation.
-
 ## Contributing
 
 1. Fork the repository.
