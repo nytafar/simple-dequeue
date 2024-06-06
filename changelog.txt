@@ -1,0 +1,40 @@
+# Changelog for Simple Dequeue
+
+## 1.5.0
+- add: Made the plugin fully translatable
+- add: Included Norwegian Bokmål (`nb_NO`) translation
+- update: Enhanced plugin to provide detailed error logging for file operations
+- fix: Changed `run_dequeue_file` method to public to avoid callback error
+- update: Ensured correct nonce and capability checks for form submissions
+- update: Improved admin UI to stay on the current tab after saving settings
+- add: Explanations for dequeue modes in the settings tab
+- update: Reordered tabs to place "Settings" after "Manage Dequeues"
+- feature: Added main setting to choose dequeue mode with three options (Direct from settings, Theme Functions File, Direct File Mode)
+
+## 1.4.0
+- feature: Introduced direct file mode for higher performance by generating and using a dequeue file on the frontend
+- update: Reorganized code structure by breaking up into different files and directories for better maintainability
+- update: Added tooltips to show the path of each plugin source when hovering over the source in the admin interface
+- feature: Moved the plugin's admin menu under "Settings"
+- add: Provided a separate tab for manual dequeue code
+- fix: Displayed generated dequeue code in the Direct File Mode tab
+- fix: Ensured the plugin handles file permissions correctly for direct file mode
+
+## 1.3.0
+- feature: Added the ability to show and disable assets for specific post types (e.g., is_product, is_single, is_frontpage, etc.)
+- update: Improved the UI for managing dequeues by adding checkboxes for each post type context
+- fix: Resolved issues with the plugin not listing any assets in the settings page
+
+## 1.2.0
+- feature: Added functionality to print manual dequeue code based on user choices
+- add: Included a copy to clipboard button and a notice to disable the plugin before adding the code manually
+- update: Enhanced the admin interface to list enqueued assets and allow selective disabling
+
+## 1.1.0
+- feature: Initial release with basic functionality to list frontend CSS and JS enqueued by plugins
+- add: Provided option to selectively disable or dequeue enqueued assets
+- fix: Ensured only administrators can access the plugin settings
+- update: Added support for WooCommerce, Redis Object Cache Pro, and Nginx Cache Helper
+
+## 1.0.0
+- initial: Initial commit with basic plugin setup and structure
