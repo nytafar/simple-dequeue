@@ -99,6 +99,8 @@ class Simple_Dequeue {
         $dequeues = isset($_POST['dequeues']) ? $_POST['dequeues'] : array();
         update_option('simple_dequeue_dequeued_assets', $dequeues);
 
+        $this->update_dequeue_file($dequeues); // Ensure this is called
+
         wp_redirect(admin_url('options-general.php?page=simple-dequeue&updated=true'));
         exit;
     }
@@ -144,11 +146,16 @@ class Simple_Dequeue {
 
     private function update_dequeue_file($assets) {
         $code = $this->generate_dequeue_code($assets);
-        if (false === @file_put_contents($this->dequeue_file, $code)) {
+
+        error_log('Simple Dequeue: Generated dequeue code: ' . $code); // Log the generated code
+
+        $file_written = @file_put_contents($this->dequeue_file, $code);
+        
+        if ($file_written === false) {
             $this->file_error = true;
-            error_log('Simple Dequeue: Failed to write to ' . $this->dequeue_file);
+            error_log('Simple Dequeue: Failed to write to ' . $this->dequeue_file); // Log the failure
         } else {
-            error_log('Simple Dequeue: Successfully wrote to ' . $this->dequeue_file);
+            error_log('Simple Dequeue: Successfully wrote to ' . $this->dequeue_file); // Log the success
         }
     }
 
@@ -157,6 +164,7 @@ class Simple_Dequeue {
             include $this->dequeue_file;
         } else {
             $this->file_error = true;
+            error_log('Simple Dequeue: Dequeue file does not exist at ' . $this->dequeue_file); // Log if file does not exist
         }
     }
 

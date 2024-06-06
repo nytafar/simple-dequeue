@@ -41,7 +41,7 @@ class Simple_Dequeue_Admin {
                                 <th>Asset</th>
                                 <th>Type</th>
                                 <th>Source</th>
-                                <?php foreach ($this->plugin->get_contexts() as $context => $label): ?> <!-- Use getter method -->
+                                <?php foreach ($this->plugin->get_contexts() as $context => $label): ?>
                                     <th><?php echo esc_html($label); ?></th>
                                 <?php endforeach; ?>
                             </tr>
@@ -53,7 +53,7 @@ class Simple_Dequeue_Admin {
                                         <td><?php echo esc_html($asset); ?></td>
                                         <td><?php echo esc_html($details['type']); ?></td>
                                         <td title="<?php echo esc_attr($details['full_source']); ?>"><?php echo esc_html($details['source']); ?></td>
-                                        <?php foreach ($this->plugin->get_contexts() as $context => $label): ?> <!-- Use getter method -->
+                                        <?php foreach ($this->plugin->get_contexts() as $context => $label): ?>
                                             <td>
                                                 <input type="checkbox" name="dequeues[<?php echo esc_attr($asset); ?>][<?php echo esc_attr($context); ?>]" value="1" <?php checked(isset($dequeued_assets[$asset][$context])); ?>>
                                             </td>
