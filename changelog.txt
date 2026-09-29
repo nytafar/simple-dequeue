@@ -1,5 +1,16 @@
 # Changelog for Simple Dequeue
 
+## 2.0.0
+- perf: Frontend no longer writes to the database or disk. 1.x saved the asset list and rewrote `dequeue-code.php` on every uncached page view
+- perf: Asset list is no longer autoloaded (was ~23 KB on every request) and is only recorded while an administrator browses the frontend
+- perf: Active contexts are evaluated once per request instead of once per rule
+- fix: Translations were loaded before `init` (WP 6.7 "_load_textdomain_just_in_time" notice)
+- fix: Context keys from the form are whitelisted. They were called as functions and written into generated PHP
+- remove: Direct File Mode (one autoloaded option is as fast as including a generated file). Existing installs migrate to "Direct from settings" automatically
+- remove: Debug logging of generated code
+- update: Single-file plugin, one settings form, generated snippet uses a closure and escapes handles safely
+- add: uninstall.php, HPOS compatibility declaration, `tests/check.php` (`wp eval-file`)
+
 ## 1.5.0
 - add: Made the plugin fully translatable
 - add: Included Norwegian Bokmål (`nb_NO`) translation

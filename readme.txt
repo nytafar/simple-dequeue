@@ -3,9 +3,9 @@
 **Contributors:** Lasse Jellum  
 **Author URI:** https://jellum.net  
 **Tags:** dequeue, performance, optimization, scripts, styles  
-**Requires at least:** 4.6  
-**Tested up to:** 6.2  
-**Stable tag:** 1.4.0  
+**Requires at least:** 6.4  
+**Tested up to:** 7.1  
+**Stable tag:** 2.0.0  
 **License:** GPLv2 or later  
 **License URI:** http://www.gnu.org/licenses/gpl-2.0.html  
 
@@ -17,11 +17,10 @@ I finally wrpte this plugin after years of searching out a myriad of assets in d
 
 ### Features
 
-- **Manage Dequeues**: View a list of all CSS and JS files enqueued by other plugins and selectively disable them based on different contexts (e.g., front page, single post, product page).
+- **Manage Dequeues**: View a list of all CSS and JS files enqueued on pages you have visited while logged in as an administrator and selectively disable them based on different contexts (e.g., front page, single post, product page).
 - **Dequeue Modes**:
   - **Direct from Settings**: Dequeue assets on the frontend according to your settings, ideal for building and testing.
   - **Theme Functions File**: Generate code to paste into your theme's `functions.php` file. The plugin will not dequeue assets by itself but will generate the necessary code. You can safely disable the plugin once the code is implemented.
-  - **Direct File Mode**: Generate a file that is loaded on the frontend without accessing settings in the database for changes. This higher performance option bypasses the need to keep a copy (requires system write permissions).
 - **Manual Dequeue Code**: Provides the code needed to manually dequeue selected assets, which can be copied to your theme's `functions.php` file.
 
 ## Installation
@@ -40,7 +39,6 @@ I finally wrpte this plugin after years of searching out a myriad of assets in d
 2. **Dequeue Modes**:
    - **Direct from Settings**: Choose this mode to manage dequeues directly from the plugin settings.
    - **Theme Functions File**: Generate the dequeue code and paste it into your theme's `functions.php` file.
-   - **Direct File Mode**: Enable this mode to generate a file that will be loaded on the frontend. Note that this mode requires system write permissions.
 
 3. **Manual Dequeue Code**:
    - Copy the generated code and paste it into your theme's `functions.php` file.

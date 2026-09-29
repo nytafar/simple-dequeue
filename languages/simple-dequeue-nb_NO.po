@@ -178,3 +178,7 @@ msgstr "Aktiver direkte filmodus"
 #: includes/class-simple-dequeue-admin.php:170
 msgid "Failed to create or write to the dequeue code file."
 msgstr "Kunne ikke opprette eller skrive til fil."
+
+#: simple-dequeue.php
+msgid "Assets are recorded while you browse the frontend logged in as an administrator."
+msgstr "Filer registreres mens du besøker nettstedet innlogget som administrator."
