@@ -6,7 +6,8 @@
 - perf: Active contexts are evaluated once per request instead of once per rule
 - fix: Translations were loaded before `init` (WP 6.7 "_load_textdomain_just_in_time" notice)
 - fix: Context keys from the form are whitelisted. They were called as functions and written into generated PHP
-- remove: Direct File Mode (one autoloaded option is as fast as including a generated file). Existing installs migrate to "Direct from settings" automatically
+- update: Rules live in `wp-content/simple-dequeue-rules.php`, a plain PHP array editable by hand or in the settings page. Written only when saved and the content changed, atomically; a broken hand edit logs and dequeues nothing instead of a fatal. 1.x rules are copied into the file on the first admin load and read from the option until then; the option is left in place so a deploy never has a window without rules
+- remove: Direct File Mode as a separate mode (the rules file replaces it)
 - remove: Debug logging of generated code
 - update: Single-file plugin, one settings form, generated snippet uses a closure and escapes handles safely
 - add: uninstall.php, HPOS compatibility declaration, `tests/check.php` (`wp eval-file`)

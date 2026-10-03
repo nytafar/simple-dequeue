@@ -18,6 +18,9 @@ const SIMPLE_DEQUEUE_VERSION = '2.0.0';
 // Conditional tags a rule can target. Whitelist: rule keys are called as functions.
 const SIMPLE_DEQUEUE_CONTEXTS = array('is_front_page', 'is_home', 'is_single', 'is_page', 'is_product');
 
+// Rules file: edit by hand or under Settings > Simple Dequeue. Outside the plugin dir so updates keep it.
+define('SIMPLE_DEQUEUE_FILE', WP_CONTENT_DIR . '/simple-dequeue-rules.php');
+
 add_action('before_woocommerce_init', function () {
     if (class_exists(\Automattic\WooCommerce\Utilities\FeaturesUtil::class)) {
         \Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility('custom_order_tables', __FILE__, true);
@@ -31,8 +34,8 @@ add_action('init', function () {
 add_action('wp_enqueue_scripts', 'simple_dequeue_run', 100);
 
 /**
- * Frontend: one autoloaded option read, no writes. Admins also refresh the asset list
- * (logged-in requests bypass the page cache, so this never runs for visitors).
+ * Frontend: includes the rules file (opcache-cached), no DB reads for rules, no writes. Admins also
+ * refresh the asset list (logged-in requests bypass the page cache, so this never runs for visitors).
  */
 function simple_dequeue_run() {
     if (current_user_can('manage_options')) {
@@ -47,7 +50,7 @@ function simple_dequeue_run() {
     if (!$active) {
         return;
     }
-    foreach ((array) get_option('simple_dequeue_dequeued_assets', array()) as $handle => $contexts) {
+    foreach (simple_dequeue_rules() as $handle => $contexts) {
         if (array_intersect_key((array) $contexts, $active)) {
             wp_dequeue_script($handle);
             wp_dequeue_style($handle);
@@ -77,12 +80,57 @@ function simple_dequeue_capture() {
     }
 }
 
-/** Keep only whitelisted contexts and non-empty handles: [handle => [context => '1']]. */
+/**
+ * Rules as [handle => [context => '1']]. Until the 1.x option is migrated into the file, the option is
+ * used. A broken hand edit must not take the site down: it logs and dequeues nothing.
+ */
+function simple_dequeue_rules($file = SIMPLE_DEQUEUE_FILE) {
+    if (!is_file($file)) {
+        return simple_dequeue_sanitize_rules(get_option('simple_dequeue_dequeued_assets', array()));
+    }
+    try {
+        return simple_dequeue_sanitize_rules(include $file);
+    } catch (\Throwable $e) {
+        error_log('Simple Dequeue: ' . $file . ': ' . $e->getMessage());
+        return array();
+    }
+}
+
+/** Write the rules file, only when its content changes. Atomic, so a visitor never includes half a file. */
+function simple_dequeue_write_rules($rules, $file = SIMPLE_DEQUEUE_FILE) {
+    $code = "<?php\n// Simple Dequeue rules: handle => contexts (" . implode(', ', SIMPLE_DEQUEUE_CONTEXTS) . ").\n"
+          . "// Edit here or under Settings > Simple Dequeue. Hand edits apply within opcache.revalidate_freq.\n"
+          . "defined('ABSPATH') || exit;\n\nreturn array(\n";
+    foreach (simple_dequeue_sanitize_rules($rules) as $handle => $contexts) {
+        $code .= '    ' . var_export((string) $handle, true) . ' => array(' . implode(', ', array_map(function ($c) {
+            return var_export($c, true);
+        }, array_keys($contexts))) . "),\n";
+    }
+    $code .= ");\n";
+    if (is_file($file) && file_get_contents($file) === $code) {
+        return true;
+    }
+    $tmp = $file . '.' . wp_generate_password(8, false) . '.tmp';
+    if (false === file_put_contents($tmp, $code) || !rename($tmp, $file)) {
+        @unlink($tmp);
+        return false;
+    }
+    if (function_exists('opcache_invalidate')) {
+        opcache_invalidate($file, true);
+    }
+    return true;
+}
+
+/** Keep only whitelisted contexts and non-empty handles: [handle => [context => '1']]. Accepts list form. */
 function simple_dequeue_sanitize_rules($input) {
     $rules = array();
     foreach ((array) $input as $handle => $contexts) {
         $handle   = sanitize_text_field((string) $handle);
-        $contexts = array_intersect_key((array) $contexts, array_flip(SIMPLE_DEQUEUE_CONTEXTS));
+        $contexts = (array) $contexts;
+        if ($contexts && array_keys($contexts) === range(0, count($contexts) - 1)) {
+            $contexts = array_fill_keys(array_map('strval', $contexts), '1');
+        }
+        $contexts = array_intersect_key($contexts, array_flip(SIMPLE_DEQUEUE_CONTEXTS));
         if ($handle !== '' && $contexts) {
             $rules[$handle] = array_fill_keys(array_keys($contexts), '1');
         }
@@ -118,10 +166,15 @@ if (is_admin()) {
     add_action('admin_post_simple_dequeue_save', 'simple_dequeue_save');
 }
 
-// 1.x autoloaded the asset list, rewrote dequeue-code.php on every page view and had a "direct file" mode.
+// 1.x autoloaded the asset list, kept rules in an option and rewrote dequeue-code.php on every page view.
 function simple_dequeue_upgrade() {
     if (get_option('simple_dequeue_version') === SIMPLE_DEQUEUE_VERSION) {
         return;
+    }
+    if (!is_file(SIMPLE_DEQUEUE_FILE)) {
+        if (!simple_dequeue_write_rules(simple_dequeue_rules())) {
+            return; // Retry next admin load; the frontend keeps using the option meanwhile.
+        }
     }
     wp_set_option_autoload('simple_dequeue_assets', false);
     if (get_option('simple_dequeue_mode') === 'direct_file') {
@@ -138,17 +191,17 @@ function simple_dequeue_save() {
     }
     check_admin_referer('simple_dequeue_save');
 
-    update_option('simple_dequeue_dequeued_assets', simple_dequeue_sanitize_rules(wp_unslash($_POST['rules'] ?? array())));
-    $mode = ($_POST['dequeue_mode'] ?? '') === 'functions_file' ? 'functions_file' : 'settings';
+    $written = simple_dequeue_write_rules(wp_unslash($_POST['rules'] ?? array()));
+    $mode    = ($_POST['dequeue_mode'] ?? '') === 'functions_file' ? 'functions_file' : 'settings';
     update_option('simple_dequeue_mode', $mode);
 
-    wp_safe_redirect(admin_url('options-general.php?page=simple-dequeue&updated=true'));
+    wp_safe_redirect(admin_url('options-general.php?page=simple-dequeue&' . ($written ? 'updated=true' : 'write_error=1')));
     exit;
 }
 
 function simple_dequeue_admin_page() {
     $assets   = get_option('simple_dequeue_assets', array());
-    $rules    = get_option('simple_dequeue_dequeued_assets', array());
+    $rules    = simple_dequeue_rules();
     $mode     = get_option('simple_dequeue_mode', 'settings');
     $contexts = array(
         'is_front_page' => __('Front Page', 'simple-dequeue'),
@@ -161,7 +214,11 @@ function simple_dequeue_admin_page() {
     ?>
     <div class="wrap">
         <h1><?php esc_html_e('Simple Dequeue', 'simple-dequeue'); ?></h1>
+        <?php if (isset($_GET['write_error'])) : ?>
+            <div class="notice notice-error"><p><?php echo esc_html(sprintf(__('Could not write %s. Nothing was saved.', 'simple-dequeue'), SIMPLE_DEQUEUE_FILE)); ?></p></div>
+        <?php endif; ?>
         <p><?php esc_html_e('Assets are recorded while you browse the frontend logged in as an administrator.', 'simple-dequeue'); ?></p>
+        <p><?php echo esc_html(sprintf(__('Rules are stored in %s. You can also edit that file directly.', 'simple-dequeue'), SIMPLE_DEQUEUE_FILE)); ?></p>
         <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
             <input type="hidden" name="action" value="simple_dequeue_save">
             <?php wp_nonce_field('simple_dequeue_save'); ?>

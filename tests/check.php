@@ -26,6 +26,23 @@ try {
     $fail('generate_code parse error: ' . $e->getMessage() . "\n$code");
 }
 
+// Rules file: round-trip, list form for hand edits, write only on change, broken file dequeues nothing.
+$tmp = wp_tempnam('simple-dequeue-check');
+@unlink($tmp);
+$want = array('vipps-gw' => array('is_front_page' => '1', 'is_page' => '1'), "a'b" => array('is_product' => '1'));
+simple_dequeue_write_rules($want + array('x' => array('system' => '1')), $tmp) || $fail('write_rules failed');
+simple_dequeue_rules($tmp) === $want || $fail('round-trip: ' . var_export(simple_dequeue_rules($tmp), true));
+touch($tmp, 1000000000);
+clearstatcache();
+simple_dequeue_write_rules($want, $tmp);
+clearstatcache();
+filemtime($tmp) === 1000000000 || $fail('unchanged rules rewrote the file');
+file_put_contents($tmp, "<?php return array('wc-bis-main' => array('is_front_page', 'phpinfo'));");
+simple_dequeue_rules($tmp) === array('wc-bis-main' => array('is_front_page' => '1')) || $fail('list form not read');
+file_put_contents($tmp, "<?php return array(");
+simple_dequeue_rules($tmp) === array() || $fail('broken file did not fall back to no rules');
+unlink($tmp);
+
 // The asset list must not be autoloaded (1.x loaded ~23 KB of it on every request).
 $autoload = $GLOBALS['wpdb']->get_var("SELECT autoload FROM {$GLOBALS['wpdb']->options} WHERE option_name = 'simple_dequeue_assets'");
 (null === $autoload || !in_array($autoload, wp_autoload_values_to_autoload(), true))
