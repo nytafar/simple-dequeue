@@ -1,1 +1,3 @@
 .DS_Store
+# Written by 1.x on every page view; 2.0 keeps rules in wp-content/simple-dequeue-rules.php
+dequeue-code.php
